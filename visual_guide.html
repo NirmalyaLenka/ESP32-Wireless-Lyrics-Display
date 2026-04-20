@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESP32 Lyrics Display — Setup Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;700&display=swap');
+
+  :root {
+    --bg: #0d0d12;
+    --surface: #14141e;
+    --surface2: #1c1c2e;
+    --border: #2a2a40;
+    --accent: #7c5cfc;
+    --accent2: #fc5c7d;
+    --green: #43e97b;
+    --yellow: #f7d06a;
+    --text: #e8e8f0;
+    --muted: #7a7a9a;
+    --oled: #000000;
+    --pixel: #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, #0d0d12 0%, #12112a 50%, #0d0d12 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 60px 40px 50px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -80px; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse, rgba(124,92,252,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .badge {
+    display: inline-block;
+    background: rgba(124,92,252,0.15);
+    border: 1px solid rgba(124,92,252,0.4);
+    color: #a78bfa;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+  }
+  .hero h1 {
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 700;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #fff 30%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+  }
+  .hero p {
+    color: var(--muted);
+    font-size: 17px;
+    max-width: 520px;
+    margin: 0 auto 32px;
+  }
+  .hero-tags {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .tag {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 13px;
+    padding: 5px 14px;
+    border-radius: 20px;
+  }
+  .tag span { color: var(--green); margin-right: 5px; }
+
+  /* CONTENT WRAPPER */
+  .container { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+
+  /* SECTION */
+  .section { margin-bottom: 56px; }
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  h2 {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    letter-spacing: -0.3px;
+  }
+  h3 { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
+  p { color: #c0c0d8; margin-bottom: 14px; }
+
+  /* OLED SIMULATOR */
+  .oled-demo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin: 24px 0;
+  }
+  .oled-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+  }
+  .oled-card-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  .oled-frame {
+    background: #000;
+    border: 3px solid #333;
+    border-radius: 8px;
+    padding: 8px;
+    width: 192px;
+    height: 96px;
+    margin: 0 auto;
+    position: relative;
+    font-family: 'Space Mono', monospace;
+    overflow: hidden;
+  }
+  /* Now Playing screen */
+  .np-topbar {
+    font-size: 5px;
+    color: #fff;
+    border-bottom: 1px solid #444;
+    padding-bottom: 2px;
+    margin-bottom: 2px;
+  }
+  .np-song {
+    font-size: 6px;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    animation: scroll-text 6s linear infinite;
+    display: inline-block;
+  }
+  @keyframes scroll-text {
+    0% { transform: translateX(192px); }
+    100% { transform: translateX(-300px); }
+  }
+  .np-artist { font-size: 5px; color: #aaa; margin-top: 1px; }
+  .np-divider { border-top: 1px solid #444; margin: 3px 0; }
+  .np-lyric { font-size: 5px; color: #fff; overflow: hidden; white-space: nowrap; animation: scroll-text 8s linear infinite 1s; display: inline-block; }
+  .np-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 1px;
+    height: 12px;
+    margin-top: 4px;
+  }
+  .bar {
+    background: #fff;
+    width: 7px;
+    border-radius: 1px;
+    animation: bar-dance 0.5s ease-in-out infinite alternate;
+  }
+  .bar:nth-child(1) { animation-delay: 0s; }
+  .bar:nth-child(2) { animation-delay: 0.07s; }
+  .bar:nth-child(3) { animation-delay: 0.14s; }
+  .bar:nth-child(4) { animation-delay: 0.21s; }
+  .bar:nth-child(5) { animation-delay: 0.28s; }
+  .bar:nth-child(6) { animation-delay: 0.35s; }
+  .bar:nth-child(7) { animation-delay: 0.42s; }
+  .bar:nth-child(8) { animation-delay: 0.49s; }
+  @keyframes bar-dance {
+    from { height: 2px; }
+    to { height: 10px; }
+  }
+
+  /* Clock screen */
+  .clk-label { font-size: 5px; color: #888; text-align: center; border-bottom: 1px solid #444; padding-bottom: 2px; margin-bottom: 6px; }
+  .clk-time { font-size: 20px; color: #fff; text-align: center; letter-spacing: 1px; }
+  .clk-ampm { font-size: 7px; color: #aaa; text-align: center; margin-top: 2px; }
+  .clk-bottom { font-size: 5px; color: #555; text-align: center; border-top: 1px solid #333; padding-top: 3px; margin-top: 6px; }
+
+  /* WIRING DIAGRAM */
+  .wiring-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    margin: 16px 0;
+  }
+  .wiring-table th {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 10px 16px;
+    text-align: left;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .wiring-table td {
+    border: 1px solid var(--border);
+    padding: 10px 16px;
+    color: var(--text);
+  }
+  .wiring-table tr:hover td { background: rgba(124,92,252,0.05); }
+  .pin-oled { color: #fc5c7d; }
+  .pin-esp { color: #7c5cfc; }
+  .pin-power { color: #f7d06a; }
+
+  /* STEPS */
+  .steps { display: flex; flex-direction: column; gap: 0; }
+  .step {
+    display: flex;
+    gap: 20px;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .step:last-child { border-bottom: none; }
+  .step-num {
+    flex-shrink: 0;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .step-body h3 { margin-bottom: 8px; }
+  .step-body p { margin-bottom: 8px; }
+
+  /* CODE BLOCKS */
+  code, .code {
+    font-family: 'Space Mono', monospace;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: #a78bfa;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+  pre {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: #c8c8e8;
+    overflow-x: auto;
+    margin: 12px 0;
+    line-height: 1.7;
+  }
+  pre .c { color: #666; }
+  pre .k { color: #a78bfa; }
+  pre .s { color: #43e97b; }
+  pre .v { color: #f7d06a; }
+
+  /* DIAGRAM SVG wrapper */
+  .diagram-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin: 20px 0;
+    text-align: center;
+  }
+
+  /* TIPS */
+  .tip {
+    background: rgba(124,92,252,0.07);
+    border: 1px solid rgba(124,92,252,0.25);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin: 12px 0;
+    font-size: 14px;
+    color: #c0b8f8;
+  }
+  .tip-icon { margin-right: 6px; }
+  .warn {
+    background: rgba(252,92,125,0.07);
+    border: 1px solid rgba(252,92,125,0.25);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin: 12px 0;
+    font-size: 14px;
+    color: #f8b8c8;
+  }
+
+  /* FILE TREE */
+  .tree {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    line-height: 2;
+  }
+  .tree .folder { color: #7c5cfc; }
+  .tree .file { color: #e8e8f0; }
+  .tree .comment { color: #555; font-size: 11px; }
+
+  /* How it works diagram */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 24px 0;
+  }
+  .flow-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 20px;
+    text-align: center;
+    min-width: 120px;
+  }
+  .flow-box .icon { font-size: 24px; margin-bottom: 4px; }
+  .flow-box .label { font-size: 12px; color: var(--muted); }
+  .flow-box .sublabel { font-size: 11px; color: #555; margin-top: 2px; }
+  .arrow { font-size: 20px; color: var(--accent); }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .oled-demo-grid { grid-template-columns: 1fr; }
+    .flow-box { min-width: 90px; padding: 10px 14px; }
+    .hero { padding: 40px 20px 36px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="badge">⚡ ESP32 + 0.96" OLED PROJECT</div>
+  <h1>🎵 Wireless Lyrics Display</h1>
+  <p>Show live song lyrics from Spotify & YouTube Music on a tiny OLED — with a 12-hour clock when nothing's playing.</p>
+  <div class="hero-tags">
+    <div class="tag"><span>✓</span>ESP32 Wireless</div>
+    <div class="tag"><span>✓</span>No API Key Needed</div>
+    <div class="tag"><span>✓</span>Beginner Friendly</div>
+    <div class="tag"><span>✓</span>Spotify + YouTube Music</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- HOW IT WORKS -->
+  <div class="section">
+    <div class="section-label">Architecture</div>
+    <h2>How it Works</h2>
+    <p>A small Python script runs on your PC, detects what's playing, and fetches lyrics. Your ESP32 connects to it over WiFi and displays everything on the OLED.</p>
+
+    <div class="flow">
+      <div class="flow-box">
+        <div class="icon">🎵</div>
+        <div class="label">Spotify / YouTube Music</div>
+        <div class="sublabel">playing on your PC</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-box">
+        <div class="icon">🐍</div>
+        <div class="label">PC Bridge</div>
+        <div class="sublabel">Python script reads title<br>+ fetches lyrics</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-box">
+        <div class="icon">📡</div>
+        <div class="label">WiFi</div>
+        <div class="sublabel">same network</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-box">
+        <div class="icon">🔲</div>
+        <div class="label">ESP32 + OLED</div>
+        <div class="sublabel">displays lyrics</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OLED PREVIEW -->
+  <div class="section">
+    <div class="section-label">Display Preview</div>
+    <h2>What You'll See</h2>
+    <div class="oled-demo-grid">
+
+      <div class="oled-card">
+        <div class="oled-card-title">▶ When Music is Playing</div>
+        <div class="oled-frame">
+          <div class="np-topbar">♪ NOW PLAYING</div>
+          <div style="overflow:hidden; width:100%"><div class="np-song">Blinding Lights — The Weeknd</div></div>
+          <div class="np-artist">The Weeknd</div>
+          <div class="np-divider"></div>
+          <div style="overflow:hidden; width:100%"><div class="np-lyric">I said, ooh, I'm blinded by the lights...</div></div>
+          <div class="np-bars">
+            <div class="bar" style="--h:4px"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+          </div>
+        </div>
+        <p style="font-size:12px; color:var(--muted); text-align:center; margin-top:10px;">Song & artist scroll automatically. Current lyric line updates in sync.</p>
+      </div>
+
+      <div class="oled-card">
+        <div class="oled-card-title">⏸ When Nothing is Playing</div>
+        <div class="oled-frame">
+          <div class="clk-label">NO MUSIC</div>
+          <div class="clk-time" id="clk">12:00:00</div>
+          <div class="clk-ampm" id="ampm">PM</div>
+          <div class="clk-bottom">play something :)</div>
+        </div>
+        <p style="font-size:12px; color:var(--muted); text-align:center; margin-top:10px;">Live 12-hour clock with seconds. Updates every second.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PARTS NEEDED -->
+  <div class="section">
+    <div class="section-label">Shopping List</div>
+    <h2>What You Need</h2>
+    <table class="wiring-table">
+      <tr>
+        <th>Part</th>
+        <th>Details</th>
+        <th>Cost (approx)</th>
+      </tr>
+      <tr>
+        <td>ESP32 Dev Board</td>
+        <td>Any ESP32 variant (ESP32 DevKit, NodeMCU-32S, etc.)</td>
+        <td>~$4–8</td>
+      </tr>
+      <tr>
+        <td>0.96" OLED Display</td>
+        <td>SSD1306 chip, 128×64 pixels, I2C interface (4 pins)</td>
+        <td>~$2–5</td>
+      </tr>
+      <tr>
+        <td>4× Jumper Wires</td>
+        <td>Female-to-female (F-F)</td>
+        <td>~$1</td>
+      </tr>
+      <tr>
+        <td>USB Cable</td>
+        <td>For flashing the ESP32 (micro-USB or USB-C depending on board)</td>
+        <td>Already have it</td>
+      </tr>
+    </table>
+    <p style="margin-top:8px;">Total cost: about <strong style="color:var(--green)">$7–14</strong>. Both parts are widely available on Amazon, AliExpress, or local electronics stores.</p>
+  </div>
+
+  <!-- WIRING -->
+  <div class="section">
+    <div class="section-label">Hardware Setup</div>
+    <h2>Wiring the OLED to ESP32</h2>
+    <p>Only 4 wires needed! The OLED uses I2C protocol.</p>
+
+    <table class="wiring-table">
+      <tr>
+        <th>OLED Pin</th>
+        <th>ESP32 Pin</th>
+        <th>Description</th>
+      </tr>
+      <tr>
+        <td><span class="pin-power">VCC</span></td>
+        <td><span class="pin-esp">3.3V</span></td>
+        <td>Power — use 3.3V, NOT 5V</td>
+      </tr>
+      <tr>
+        <td><span class="pin-power">GND</span></td>
+        <td><span class="pin-esp">GND</span></td>
+        <td>Ground</td>
+      </tr>
+      <tr>
+        <td><span class="pin-oled">SDA</span></td>
+        <td><span class="pin-esp">GPIO 21</span></td>
+        <td>Data line</td>
+      </tr>
+      <tr>
+        <td><span class="pin-oled">SCL</span></td>
+        <td><span class="pin-esp">GPIO 22</span></td>
+        <td>Clock line</td>
+      </tr>
+    </table>
+
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 560 200" width="100%" style="max-width:540px;" xmlns="http://www.w3.org/2000/svg">
+        <!-- ESP32 board -->
+        <rect x="30" y="40" width="200" height="120" rx="8" fill="#1c1c2e" stroke="#7c5cfc" stroke-width="2"/>
+        <text x="130" y="30" text-anchor="middle" fill="#a78bfa" font-family="Space Mono" font-size="11">ESP32</text>
+        <!-- ESP32 pins left side -->
+        <text x="50" y="72" fill="#f7d06a" font-family="Space Mono" font-size="10">3.3V ●</text>
+        <text x="50" y="92" fill="#f7d06a" font-family="Space Mono" font-size="10">GND  ●</text>
+        <text x="50" y="112" fill="#7c5cfc" font-family="Space Mono" font-size="10">GPIO21●</text>
+        <text x="50" y="132" fill="#7c5cfc" font-family="Space Mono" font-size="10">GPIO22●</text>
+
+        <!-- OLED display -->
+        <rect x="330" y="50" width="160" height="100" rx="8" fill="#000" stroke="#555" stroke-width="2"/>
+        <rect x="345" y="62" width="130" height="75" rx="4" fill="#000" stroke="#444" stroke-width="1"/>
+        <text x="410" y="55" text-anchor="middle" fill="#888" font-family="Space Mono" font-size="10">0.96" OLED</text>
+        <!-- OLED mini display content -->
+        <text x="350" y="80" fill="#fff" font-family="Space Mono" font-size="7">♪ NOW PLAYING</text>
+        <line x1="348" y1="84" x2="472" y2="84" stroke="#444" stroke-width="1"/>
+        <text x="350" y="94" fill="#fff" font-family="Space Mono" font-size="6">Blinding Lights</text>
+        <text x="350" y="104" fill="#aaa" font-family="Space Mono" font-size="6">The Weeknd</text>
+        <line x1="348" y1="108" x2="472" y2="108" stroke="#444" stroke-width="1"/>
+        <text x="350" y="118" fill="#fff" font-family="Space Mono" font-size="6">I said ooh im blinded..</text>
+
+        <!-- OLED pin labels -->
+        <text x="333" y="168" fill="#f7d06a" font-family="Space Mono" font-size="9">VCC GND SDA SCL</text>
+        <circle cx="340" cy="157" r="3" fill="#f7d06a"/>
+        <circle cx="354" cy="157" r="3" fill="#f7d06a"/>
+        <circle cx="368" cy="157" r="3" fill="#fc5c7d"/>
+        <circle cx="382" cy="157" r="3" fill="#7c5cfc"/>
+
+        <!-- Wires -->
+        <!-- 3.3V wire -->
+        <path d="M 150 68 Q 240 50 330 157" fill="none" stroke="#f7d06a" stroke-width="2" stroke-dasharray="4,3"/>
+        <!-- GND wire -->
+        <path d="M 150 88 Q 245 70 325 157" fill="none" stroke="#999" stroke-width="2" stroke-dasharray="4,3"/>
+        <!-- SDA wire -->
+        <path d="M 150 108 Q 250 90 362 157" fill="none" stroke="#fc5c7d" stroke-width="2" stroke-dasharray="4,3"/>
+        <!-- SCL wire -->
+        <path d="M 150 128 Q 255 110 376 157" fill="none" stroke="#7c5cfc" stroke-width="2" stroke-dasharray="4,3"/>
+
+        <!-- Legend -->
+        <rect x="30" y="175" width="12" height="3" fill="#f7d06a"/>
+        <text x="46" y="180" fill="#888" font-family="Space Mono" font-size="9">Power</text>
+        <rect x="100" y="175" width="12" height="3" fill="#fc5c7d"/>
+        <text x="116" y="180" fill="#888" font-family="Space Mono" font-size="9">SDA (data)</text>
+        <rect x="210" y="175" width="12" height="3" fill="#7c5cfc"/>
+        <text x="226" y="180" fill="#888" font-family="Space Mono" font-size="9">SCL (clock)</text>
+      </svg>
+    </div>
+
+    <div class="warn">⚠️ <strong>Use 3.3V, not 5V!</strong> The ESP32 is a 3.3V board. Connecting OLED VCC to 5V might damage it.</div>
+  </div>
+
+  <!-- STEP BY STEP -->
+  <div class="section">
+    <div class="section-label">Setup Guide</div>
+    <h2>Step-by-Step Instructions</h2>
+
+    <div class="steps">
+
+      <!-- Step 1 -->
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>Install Arduino IDE & ESP32 Support</h3>
+          <p>Download Arduino IDE from <strong>arduino.cc/en/software</strong> (free). Then add ESP32 board support:</p>
+          <p>Go to <strong>File → Preferences</strong>, and in "Additional Boards Manager URLs" paste:</p>
+          <pre>https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json</pre>
+          <p>Then go to <strong>Tools → Board → Boards Manager</strong>, search <code>esp32</code>, and install <strong>"esp32 by Espressif Systems"</strong>.</p>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>Install Required Libraries</h3>
+          <p>In Arduino IDE, go to <strong>Tools → Manage Libraries</strong> and install these three:</p>
+          <ul style="padding-left:20px; color:#c0c0d8; line-height:2.2;">
+            <li><code>Adafruit SSD1306</code> — OLED driver</li>
+            <li><code>Adafruit GFX Library</code> — Graphics engine (usually auto-installs)</li>
+            <li><code>ArduinoJson</code> — JSON parsing</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>Configure the Firmware</h3>
+          <p>Open <code>esp32_firmware/esp32_lyrics_display.ino</code> in Arduino IDE. Edit these 3 lines at the top:</p>
+          <pre><span class="k">const char*</span> WIFI_SSID     = <span class="s">"YourWiFiName"</span>;
+<span class="k">const char*</span> WIFI_PASSWORD = <span class="s">"YourWiFiPassword"</span>;
+<span class="k">const char*</span> PC_IP_ADDRESS = <span class="s">"192.168.1.XXX"</span>;  <span class="c">// ← your PC's IP</span></pre>
+          <p>To find your PC's IP: <strong>Windows:</strong> run <code>ipconfig</code> in Command Prompt → look for "IPv4 Address". <strong>Mac/Linux:</strong> run <code>ifconfig</code> or check WiFi settings.</p>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h3>Upload to ESP32</h3>
+          <p>Connect your ESP32 via USB. In Arduino IDE:</p>
+          <ul style="padding-left:20px; color:#c0c0d8; line-height:2.2;">
+            <li>Select <strong>Tools → Board → ESP32 Arduino → ESP32 Dev Module</strong></li>
+            <li>Select <strong>Tools → Port → COMx</strong> (Windows) or <strong>/dev/ttyUSB0</strong> (Linux/Mac)</li>
+            <li>Click the <strong>Upload (→) button</strong></li>
+          </ul>
+          <div class="tip"><span class="tip-icon">💡</span>If upload fails, hold the <strong>BOOT button</strong> on the ESP32 while clicking Upload, then release when "Connecting..." appears.</div>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <h3>Install Python & Run the PC Bridge</h3>
+          <p>Download Python from <strong>python.org</strong> (3.8 or newer). Make sure to check <strong>"Add Python to PATH"</strong> during install.</p>
+          <p>Then double-click <strong><code>start_bridge_windows.bat</code></strong> (Windows) or run in terminal:</p>
+          <pre>cd pc_bridge
+pip install -r requirements.txt
+python pc_bridge.py</pre>
+          <p>You should see: <strong style="color:var(--green)">Server running at http://0.0.0.0:5000</strong></p>
+          <div class="tip"><span class="tip-icon">🔍</span>Open <strong>http://localhost:5000/now-playing</strong> in your browser to check if it's working before powering the ESP32.</div>
+        </div>
+      </div>
+
+      <!-- Step 6 -->
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-body">
+          <h3>Power On & Enjoy!</h3>
+          <p>Plug the ESP32 into any USB power source (phone charger, power bank, PC USB port). It will:</p>
+          <ul style="padding-left:20px; color:#c0c0d8; line-height:2.2;">
+            <li>Connect to your WiFi automatically</li>
+            <li>Show the clock screen by default</li>
+            <li>Automatically show lyrics when you play music on Spotify or YouTube Music</li>
+          </ul>
+          <div class="tip"><span class="tip-icon">🎉</span>The ESP32 and PC must be on the <strong>same WiFi network</strong>. The PC bridge must be running whenever you want lyrics.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FILE STRUCTURE -->
+  <div class="section">
+    <div class="section-label">Project Files</div>
+    <h2>File Structure</h2>
+    <div class="tree">
+      <div><span class="folder">📁 esp32-lyrics-display/</span></div>
+      <div>&nbsp;&nbsp;<span class="folder">📁 esp32_firmware/</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">📄 esp32_lyrics_display.ino</span> <span class="comment">← Upload this to your ESP32</span></div>
+      <div>&nbsp;&nbsp;<span class="folder">📁 pc_bridge/</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">🐍 pc_bridge.py</span> <span class="comment">← Run this on your PC</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">📄 requirements.txt</span> <span class="comment">← Python dependencies</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">🪟 start_bridge_windows.bat</span> <span class="comment">← Double-click to start (Windows)</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">🐧 start_bridge_mac_linux.sh</span> <span class="comment">← Run in terminal (Mac/Linux)</span></div>
+      <div>&nbsp;&nbsp;<span class="file">📘 README.md</span></div>
+    </div>
+  </div>
+
+  <!-- TROUBLESHOOTING -->
+  <div class="section">
+    <div class="section-label">Help</div>
+    <h2>Troubleshooting</h2>
+
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <div class="tip">
+        <strong>🖥 OLED shows nothing / black screen</strong><br>
+        Check your wiring. Try changing <code>SCREEN_ADDRESS</code> from <code>0x3C</code> to <code>0x3D</code> in the .ino file.
+      </div>
+      <div class="tip">
+        <strong>📡 ESP32 can't connect to WiFi</strong><br>
+        Double-check SSID and password. Make sure it's 2.4GHz (ESP32 doesn't support 5GHz WiFi).
+      </div>
+      <div class="tip">
+        <strong>🎵 No lyrics showing (just clock)</strong><br>
+        Make sure the PC bridge is running. Test http://localhost:5000/now-playing in a browser. Check that PC_IP_ADDRESS in the .ino matches your PC's actual local IP.
+      </div>
+      <div class="tip">
+        <strong>🔥 Upload fails ("A fatal error occurred")</strong><br>
+        Hold the BOOT button on the ESP32 when uploading. Or try a different USB cable (some are charge-only).
+      </div>
+      <div class="tip">
+        <strong>🎵 Song detected but no lyrics</strong><br>
+        Some songs don't have lyrics in the lrclib.net database. Try a more popular song to test. The song title & artist must match exactly.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="background:var(--surface); border-top:1px solid var(--border); padding:30px 24px; text-align:center;">
+  <p style="color:var(--muted); font-size:14px;">Made with ❤️ for ESP32 tinkerers &nbsp;·&nbsp; Uses <a href="https://lrclib.net" style="color:var(--accent)">lrclib.net</a> for free lyrics</p>
+</div>
+
+<script>
+  // Live clock in the demo
+  function updateClock() {
+    const now = new Date();
+    let h = now.getHours();
+    const m = String(now.getMinutes()).padStart(2,'0');
+    const s = String(now.getSeconds()).padStart(2,'0');
+    const isPM = h >= 12;
+    h = h % 12 || 12;
+    document.getElementById('clk').textContent = `${h}:${m}:${s}`;
+    document.getElementById('ampm').textContent = isPM ? 'PM' : 'AM';
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+</script>
+</body>
+</html>
