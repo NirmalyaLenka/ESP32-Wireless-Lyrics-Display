@@ -39,6 +39,7 @@ GND       →  GND
 SDA       →  GPIO 21
 SCL       →  GPIO 22
 ```
+<img width="393" height="270" alt="image" src="https://github.com/user-attachments/assets/c95a58c3-6dfb-4005-87b9-9f1d331baf46" />
 
 ---
 
