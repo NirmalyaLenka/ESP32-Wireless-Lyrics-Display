@@ -1,8 +1,8 @@
 @echo off
 echo.
-echo  =============================================
+echo  
 echo   ESP32 Lyrics Bridge - Starting...
-echo  =============================================
+echo  
 echo.
 
 cd /d "%~dp0"
