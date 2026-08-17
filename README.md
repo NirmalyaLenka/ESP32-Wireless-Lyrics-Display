@@ -29,12 +29,12 @@ Show **live song lyrics** from Spotify or YouTube Music on a tiny 0.96" OLED —
 
 ---
 
-## 🔌 Wiring (Only 4 Wires!)
+##  Wiring (Only 4 Wires!)
 
 ```
 OLED Pin  →  ESP32 Pin
 ────────────────────────
-VCC       →  3.3V   ⚠️ NOT 5V!
+VCC       →  3.3V    NOT 5V!
 GND       →  GND
 SDA       →  GPIO 21
 SCL       →  GPIO 22
@@ -43,7 +43,7 @@ SCL       →  GPIO 22
 
 ---
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Step 1 — Install Arduino IDE
 Download from [arduino.cc](https://www.arduino.cc/en/software) and add ESP32 support via Boards Manager URL:
@@ -73,7 +73,7 @@ To find your PC's IP:
 ### Step 4 — Upload to ESP32
 Connect via USB → select your board and port → click Upload.
 
-> 💡 If upload fails, hold the **BOOT button** on the ESP32 while clicking Upload.
+>  If upload fails, hold the **BOOT button** on the ESP32 while clicking Upload.
 
 ### Step 5 — Run the PC Bridge
 Install Python from [python.org](https://python.org) (check "Add to PATH").
@@ -94,7 +94,7 @@ Plug ESP32 into any USB power source. Play music on Spotify or YouTube Music and
 
 ---
 
-## 🗂 File Structure
+##  File Structure
 
 ```
 esp32-lyrics-display/
@@ -111,7 +111,7 @@ esp32-lyrics-display/
 
 ---
 
-## 🔧 Troubleshooting
+##  Troubleshooting
 
 | Problem | Fix |
 |---------|-----|
@@ -123,7 +123,7 @@ esp32-lyrics-display/
 
 ---
 
-## ⚙️ Optional: Spotify API (for better sync)
+##  Optional: Spotify API (for better sync)
 
 Without the API, lyrics sync uses a simple time estimate. For precise sync, get free credentials at [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard) and add them to `pc_bridge.py`:
 
@@ -134,7 +134,7 @@ SPOTIFY_CLIENT_SECRET = "your_client_secret_here"
 
 ---
 
-## 📋 Requirements
+##  Requirements
 
 - Python 3.8+
 - ESP32 on same WiFi network as PC
