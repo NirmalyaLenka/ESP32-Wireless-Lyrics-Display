@@ -143,3 +143,4 @@ SPOTIFY_CLIENT_SECRET = "your_client_secret_here"
 ---
 
 *Uses [lrclib.net](https://lrclib.net) for free synced lyrics — no account or API key needed.*
+## THIS PROJECT DOES NOT NEED ANY SUBSCRIPTION OR API KEYS IF DONE PROPERLY IF ANYTHING GOES WRONG PLEASE CONTACT carmodbhai@gmail.com
