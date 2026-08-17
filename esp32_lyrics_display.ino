@@ -12,7 +12,7 @@
  *     VCC -> 3.3V
  *     GND -> GND
  *
- * Libraries needed (install via Arduino Library Manager):
+ * Libraries needed :
  *   - Adafruit SSD1306
  *   - Adafruit GFX Library
  *   - ArduinoJson
