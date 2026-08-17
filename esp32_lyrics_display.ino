@@ -1,6 +1,6 @@
 /*
  * ESP32 OLED Lyrics Display
- * ========================
+ * 
  * Shows song lyrics from Spotify/YouTube Music on a 0.96" OLED
  * Falls back to a 12-hour clock when nothing is playing
  *
@@ -26,9 +26,6 @@
 #include <WiFiClient.h>
 #include <ArduinoJson.h>
 
-// ──────────────────────────────────────────────
-//  ★  CONFIGURE THESE SETTINGS  ★
-// ──────────────────────────────────────────────
 const char* WIFI_SSID     = "YOUR_WIFI_NAME";      // Your WiFi network name
 const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";  // Your WiFi password
 const char* PC_IP_ADDRESS = "192.168.1.XXX";       // IP of your PC (see README)
@@ -100,10 +97,6 @@ void loop() {
     drawClock(now);
   }
 }
-
-// ──────────────────────────────────────────────
-//  NETWORKING
-// ──────────────────────────────────────────────
 
 void connectWiFi() {
   showMessage("Connecting to", WIFI_SSID);
