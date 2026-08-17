@@ -204,10 +204,6 @@ void parseResponse(String json) {
   isPlaying = true;
 }
 
-// ──────────────────────────────────────────────
-//  DISPLAY: NOW PLAYING
-// ──────────────────────────────────────────────
-
 void drawNowPlaying(unsigned long now) {
   display.clearDisplay();
 
@@ -283,10 +279,6 @@ void drawVisualizerBars(unsigned long now) {
   }
 }
 
-// ──────────────────────────────────────────────
-//  DISPLAY: CLOCK (fallback)
-// ──────────────────────────────────────────────
-
 void drawClock(unsigned long now) {
   // Only redraw every second
   if (now - lastClockDraw < CLOCK_REFRESH) return;
@@ -337,10 +329,6 @@ void drawClock(unsigned long now) {
 
   display.display();
 }
-
-// ──────────────────────────────────────────────
-//  HELPERS
-// ──────────────────────────────────────────────
 
 void showBootScreen() {
   display.clearDisplay();
