@@ -1,23 +1,23 @@
-# 🎵 ESP32 Wireless Lyrics Display
+#  ESP32 Wireless Lyrics Display
 
 Show **live song lyrics** from Spotify or YouTube Music on a tiny 0.96" OLED — completely wireless via WiFi. Falls back to a **12-hour clock** when nothing is playing.
 
-> 👉 **New to this? Open [`docs/visual_guide.html`](docs/visual_guide.html) in your browser for a full visual step-by-step guide with diagrams!**
+>  **New to this? Open [`docs/visual_guide.html`](docs/visual_guide.html) in your browser for a full visual step-by-step guide with diagrams!**
 
 ---
 
-## ✨ Features
+##  Features
 
-- 📡 **Wireless** — ESP32 fetches data over WiFi, no USB needed after setup
-- 🎵 **Spotify & YouTube Music** — auto-detects what's playing
-- 🎤 **Synced Lyrics** — shows the current lyric line in real time (via lrclib.net, free, no API key)
-- 🕐 **12-Hour Clock** — beautiful fallback when no music is playing
-- 🔄 **Scrolling text** — long song names and lyrics scroll automatically
-- 📊 **Visualizer bars** — animated equalizer at the bottom while music plays
+-  **Wireless** — ESP32 fetches data over WiFi, no USB needed after setup
+-  **Spotify & YouTube Music** — auto-detects what's playing
+-  **Synced Lyrics** — shows the current lyric line in real time (via lrclib.net, free, no API key)
+-  **12-Hour Clock** — beautiful fallback when no music is playing
+- **Scrolling text** — long song names and lyrics scroll automatically
+-  **Visualizer bars** — animated equalizer at the bottom while music plays
 
 ---
 
-## 🛒 Parts List
+##  Parts List
 
 | Part | Details | Approx Cost |
 |------|---------|-------------|
