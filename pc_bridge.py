@@ -1,6 +1,5 @@
 """
 PC Bridge — Lyrics Display Server
-===================================
 Runs on your Windows/Mac/Linux PC and:
   1. Detects what's playing in Spotify or YouTube Music (browser tab)
   2. Fetches the current lyric line via lrclib.net (free, no API key!)
