@@ -148,6 +148,16 @@ SPOTIFY_CLIENT_SECRET = "your_client_secret_here"
 
 ---
 
+## Skills & technologies
+
+[![C++](https://img.shields.io/badge/C%2B%2B-cpp?logo=C%2B%2B&logoColor=white)](https://github.com/NirmalyaLenka/ESP32-Wireless-Lyrics-Display) · [![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)](https://github.com/NirmalyaLenka/ESP32-Wireless-Lyrics-Display) · [![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)](https://github.com/NirmalyaLenka/ESP32-Wireless-Lyrics-Display) · [![Dependencies](https://img.shields.io/badge/dependencies-requirements.txt-6B7280)](./)
+
+
+## How it works
+
+The firmware entry point is `esp32_lyrics_display.ino`. Open the sketch in Arduino IDE, select the matching board and serial port, verify the pin mapping and required libraries, then compile and upload. Hardware behaviour must be validated on the actual board; a README alone does not prove the circuit is safe or working.
+
+
 ## Maintenance & Audit
 
 - **Audit date:** 10 November 2026
