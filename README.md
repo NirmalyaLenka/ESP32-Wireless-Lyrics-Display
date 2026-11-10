@@ -1,167 +1,112 @@
-#  ESP32 Wireless Lyrics Display
+# ESP32 Wireless Lyrics Display
 
-Show **live song lyrics** from Spotify or YouTube Music on a tiny 0.96" OLED — completely wireless via WiFi. Falls back to a **12-hour clock** when nothing is playing.
+An ESP32 and SSD1306 OLED display that shows currently playing track information and timed lyrics received from a PC bridge over Wi-Fi. When no track is available, the display falls back to a 12-hour clock.
 
->  **New to this? Open [`docs/visual_guide.html`](docs/visual_guide.html) in your browser for a full visual step-by-step guide with diagrams!**
+[![ESP32](https://img.shields.io/badge/Hardware-ESP32-00979D?logo=espressif&logoColor=white)](https://www.espressif.com/)
+[![Arduino](https://img.shields.io/badge/Firmware-Arduino%20IDE-00979D?logo=arduino&logoColor=white)](https://www.arduino.cc/)
+[![Python](https://img.shields.io/badge/Bridge-Python%203.8%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/API-Flask-000000?logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
 
----
+## Features
 
-##  Features
-
--  **Wireless** — ESP32 fetches data over WiFi, no USB needed after setup
--  **Spotify & YouTube Music** — auto-detects what's playing
--  **Synced Lyrics** — shows the current lyric line in real time (via lrclib.net, free, no API key)
--  **12-Hour Clock** — beautiful fallback when no music is playing
-- **Scrolling text** — long song names and lyrics scroll automatically
--  **Visualizer bars** — animated equalizer at the bottom while music plays
-
----
-
-##  Parts List
-
-| Part | Details | Approx Cost |
-|------|---------|-------------|
-| ESP32 Dev Board | Any variant (DevKit, NodeMCU-32S, etc.) | $4–8 |
-| 0.96" OLED | SSD1306, 128×64, I2C (4-pin) | $2–5 |
-| 4× Jumper Wires | Female-to-Female | $1 |
-
-**Total: ~$7–14**
-
----
-
-##  Wiring (Only 4 Wires!)
-
-```
-OLED Pin  →  ESP32 Pin
-────────────────────────
-VCC       →  3.3V    NOT 5V!
-GND       →  GND
-SDA       →  GPIO 21
-SCL       →  GPIO 22
-```
-<img width="393" height="270" alt="image" src="https://github.com/user-attachments/assets/c95a58c3-6dfb-4005-87b9-9f1d331baf46" />
-
----
-
-##  Quick Start
-
-### Step 1 — Install Arduino IDE
-Download from [arduino.cc](https://www.arduino.cc/en/software) and add ESP32 support via Boards Manager URL:
-```
-https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
-```
-
-### Step 2 — Install Arduino Libraries
-In Arduino IDE → Tools → Manage Libraries, install:
-- `Adafruit SSD1306`
-- `Adafruit GFX Library`
-- `ArduinoJson`
-
-### Step 3 — Configure the ESP32 Firmware
-Open `esp32_firmware/esp32_lyrics_display.ino` and edit these lines:
-```cpp
-const char* WIFI_SSID     = "YourWiFiName";
-const char* WIFI_PASSWORD = "YourWiFiPassword";
-const char* PC_IP_ADDRESS = "192.168.1.XXX";  // your PC's local IP
-```
-
-To find your PC's IP:
-- **Windows:** run `ipconfig` in Command Prompt → look for "IPv4 Address"
-- **Mac:** System Settings → WiFi → Details
-- **Linux:** run `ip addr` or `ifconfig`
-
-### Step 4 — Upload to ESP32
-Connect via USB → select your board and port → click Upload.
-
->  If upload fails, hold the **BOOT button** on the ESP32 while clicking Upload.
-
-### Step 5 — Run the PC Bridge
-Install Python from [python.org](https://python.org) (check "Add to PATH").
-
-**Windows:** Double-click `pc_bridge/start_bridge_windows.bat`
-
-**Mac/Linux:**
-```bash
-cd pc_bridge
-pip3 install -r requirements.txt
-python3 pc_bridge.py
-```
-
-Test it: open http://localhost:5000/now-playing in your browser.
-
-### Step 6 — Power On & Enjoy!
-Plug ESP32 into any USB power source. Play music on Spotify or YouTube Music and watch the lyrics appear!
-
----
-
-##  File Structure
-
-```
-esp32-lyrics-display/
-├── esp32_firmware/
-│   └── esp32_lyrics_display.ino   ← Upload to ESP32
-├── pc_bridge/
-│   ├── pc_bridge.py               ← Run on your PC
-│   ├── requirements.txt
-│   ├── start_bridge_windows.bat   ← Windows launcher
-│   └── start_bridge_mac_linux.sh  ← Mac/Linux launcher
-└── docs/
-    └── visual_guide.html          ← Full visual tutorial
-```
-
----
-
-##  Troubleshooting
-
-| Problem | Fix |
-|---------|-----|
-| OLED shows nothing | Check wiring; try changing `SCREEN_ADDRESS` to `0x3D` |
-| ESP32 won't connect to WiFi | Use 2.4GHz network (ESP32 doesn't support 5GHz) |
-| Clock shows but no lyrics | Make sure PC bridge is running + PC_IP_ADDRESS is correct |
-| Upload fails | Hold BOOT button during upload; try a different USB cable |
-| Song detected but no lyrics | Some songs aren't in lrclib.net — try a popular song to test |
-
----
-
-##  Optional: Spotify API (for better sync)
-
-Without the API, lyrics sync uses a simple time estimate. For precise sync, get free credentials at [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard) and add them to `pc_bridge.py`:
-
-```python
-SPOTIFY_CLIENT_ID     = "your_client_id_here"
-SPOTIFY_CLIENT_SECRET = "your_client_secret_here"
-```
-
----
-
-##  Requirements
-
-- Python 3.8+
-- ESP32 on same WiFi network as PC
-- PC bridge must be running for lyrics to work
-
----
-
-*Uses [lrclib.net](https://lrclib.net) for free synced lyrics — no account or API key needed.*
-## THIS PROJECT DOES NOT NEED ANY SUBSCRIPTION OR API KEYS IF DONE PROPERLY IF ANYTHING GOES WRONG PLEASE CONTACT carmodbhai@gmail.com
-
-
----
-
-## Skills & technologies
-
-[![C++](https://img.shields.io/badge/C%2B%2B-cpp?logo=C%2B%2B&logoColor=white)](https://github.com/NirmalyaLenka/ESP32-Wireless-Lyrics-Display) · [![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)](https://github.com/NirmalyaLenka/ESP32-Wireless-Lyrics-Display) · [![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)](https://github.com/NirmalyaLenka/ESP32-Wireless-Lyrics-Display) · [![Dependencies](https://img.shields.io/badge/dependencies-requirements.txt-6B7280)](./)
-
+- ESP32 firmware drives a 128×64 SSD1306 OLED over I²C.
+- A PC-side Python bridge exposes track and lyric data over the local network.
+- Supports Spotify/local playback detection paths and looks up timed lyrics through [LRCLIB](https://lrclib.net/).
+- Falls back to a 12-hour clock when no track is playing.
+- Includes a visual setup guide and launch scripts for Windows and macOS/Linux.
 
 ## How it works
 
-The firmware entry point is `esp32_lyrics_display.ino`. Open the sketch in Arduino IDE, select the matching board and serial port, verify the pin mapping and required libraries, then compile and upload. Hardware behaviour must be validated on the actual board; a README alone does not prove the circuit is safe or working.
+1. The PC bridge checks for the current track and retrieves available lyric data.
+2. Flask serves the current playback state as JSON at `/now-playing` on port `5000`.
+3. The ESP32 requests that endpoint over the same Wi-Fi network.
+4. The firmware parses the response and updates the OLED; when no playback data is available, it displays the clock.
 
+The PC and ESP32 must be on the same reachable network. This is a hobby prototype; behaviour depends on the playback detection method, lyric availability, and local network configuration.
 
-## Maintenance & Audit
+## Hardware
 
-- **Audit date:** 10 November 2026
-- **Documentation status:** README reviewed and audit record added on this date.
-- **Scope and evidence:** This is a documentation-level maintenance pass. It does not establish that source code compiles, dependencies are current, security has been tested, or hardware/runtime behavior has been verified.
-- **Code and tests:** No new functional code changes or test results are claimed by this README update. Run project-specific build, test, and hardware/runtime checks before relying on the project.
-- **Maintenance baseline:** Documentation status recorded through 10 November 2026; revisit setup instructions, dependencies, known limitations, and tests when the project changes.
+| Component | Requirement |
+|---|---|
+| Controller | ESP32 development board |
+| Display | SSD1306 OLED, 128×64, I²C |
+| OLED VCC | 3.3 V |
+| OLED GND | GND |
+| OLED SDA | GPIO 21 |
+| OLED SCL | GPIO 22 |
+
+Do not power a 3.3 V-only OLED module from 5 V. Check the markings and datasheet for your exact module before connecting it.
+
+## Quick start
+
+### 1. Prepare the ESP32 firmware
+
+1. Install [Arduino IDE](https://www.arduino.cc/en/software) and ESP32 board support.
+2. Install these libraries through Library Manager:
+   - Adafruit SSD1306
+   - Adafruit GFX Library
+   - ArduinoJson
+3. Open `esp32_firmware/esp32_lyrics_display.ino`.
+4. Set `WIFI_SSID`, `WIFI_PASSWORD`, and `PC_IP_ADDRESS` near the top of the sketch. Use the PC's local IPv4 address; keep `PC_PORT` set to `5000` unless you also change the bridge.
+5. Select the correct ESP32 board and port, then compile and upload.
+
+### 2. Start the PC bridge
+
+**Windows**
+
+Double-click `pc_bridge/start_bridge_windows.bat`. It installs the listed Python packages and starts the server.
+
+**macOS/Linux**
+
+Run from the repository root:
+
+```bash
+bash pc_bridge/start_bridge_mac_linux.sh
+```
+
+The launcher creates a local virtual environment, installs `pc_bridge/requirements.txt`, and starts the bridge.
+
+### 3. Verify the bridge
+
+On the PC, open [http://localhost:5000/now-playing](http://localhost:5000/now-playing). If the endpoint responds, power the ESP32 and check that its configured PC IP matches the PC's current local address.
+
+## Repository structure
+
+```text
+.
+├── esp32_firmware/
+│   └── esp32_lyrics_display.ino       # ESP32 firmware; upload from Arduino IDE
+├── pc_bridge/
+│   ├── pc_bridge.py                  # Flask server and playback/lyrics logic
+│   ├── requirements.txt              # Python dependencies
+│   ├── start_bridge_windows.bat      # Windows launcher
+│   └── start_bridge_mac_linux.sh     # macOS/Linux virtualenv launcher
+├── docs/
+│   └── visual_guide.html             # Visual setup guide
+└── README.md
+```
+
+## Troubleshooting
+
+| Symptom | Checks |
+|---|---|
+| OLED is blank | Verify 3.3 V/GND, SDA/SCL wiring, I²C address, and installed display libraries. |
+| ESP32 cannot connect to Wi-Fi | Use a 2.4 GHz network and confirm the SSID/password. |
+| Clock works but lyrics do not appear | Ensure the PC bridge is running, check `PC_IP_ADDRESS`, and confirm both devices can reach each other. |
+| `/now-playing` does not load | Check the terminal for Python errors and ensure port 5000 is not blocked or already in use. |
+| No lyrics for a track | The track may not have timed lyrics available from LRCLIB. |
+
+## Skills demonstrated
+
+- Embedded C++ and Arduino firmware
+- ESP32 Wi-Fi networking and I²C peripherals
+- Python, Flask, HTTP/JSON APIs
+- Dependency management and cross-platform startup scripts
+- Hardware integration and troubleshooting
+
+## Limitations
+
+- Track detection varies by operating system and player.
+- Lyrics depend on external LRCLIB availability and matching metadata.
+- The bridge listens on the local network. Do not expose it directly to the public internet without adding appropriate authentication and security controls.
+- Optional playback API credentials may improve some integrations, but are not required for the basic OLED and bridge setup.
