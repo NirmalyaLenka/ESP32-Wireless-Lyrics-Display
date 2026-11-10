@@ -110,3 +110,10 @@ On the PC, open [http://localhost:5000/now-playing](http://localhost:5000/now-pl
 - Lyrics depend on external LRCLIB availability and matching metadata.
 - The bridge listens on the local network. Do not expose it directly to the public internet without adding appropriate authentication and security controls.
 - Optional playback API credentials may improve some integrations, but are not required for the basic OLED and bridge setup.
+
+## Maintenance & validation
+
+- **Documentation review:** 10 November 2026.
+- **Scope:** README and repository layout were updated to match the actual files.
+- **Runtime status:** The file move and documentation changes have not been followed by a hardware compile or end-to-end playback test in this session.
+- **Before relying on it:** Install the bridge dependencies, start the local endpoint, compile/upload the ESP32 sketch, and verify Wi-Fi reachability and OLED output on the target hardware.
