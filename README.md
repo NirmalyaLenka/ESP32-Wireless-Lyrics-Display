@@ -46,7 +46,7 @@ Do not power a 3.3 V-only OLED module from 5 V. Check the markings and datasheet
    - Adafruit SSD1306
    - Adafruit GFX Library
    - ArduinoJson
-3. Open `esp32_firmware/esp32_lyrics_display.ino`.
+3. Open `esp32_firmware/esp32_lyrics_display/esp32_lyrics_display.ino`.
 4. Set `WIFI_SSID`, `WIFI_PASSWORD`, and `PC_IP_ADDRESS` near the top of the sketch. Use the PC's local IPv4 address; keep `PC_PORT` set to `5000` unless you also change the bridge.
 5. Select the correct ESP32 board and port, then compile and upload.
 
@@ -75,7 +75,8 @@ On the PC, open [http://localhost:5000/now-playing](http://localhost:5000/now-pl
 ```text
 .
 ├── esp32_firmware/
-│   └── esp32_lyrics_display.ino       # ESP32 firmware; upload from Arduino IDE
+│   └── esp32_lyrics_display/
+│       └── esp32_lyrics_display.ino  # Sketch folder and filename match Arduino IDE
 ├── pc_bridge/
 │   ├── pc_bridge.py                  # Flask server and playback/lyrics logic
 │   ├── requirements.txt              # Python dependencies
