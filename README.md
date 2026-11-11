@@ -114,7 +114,7 @@ On the PC, open [http://localhost:5000/now-playing](http://localhost:5000/now-pl
 
 ## Maintenance & validation
 
-- **Documentation review:** 10 November 2026.
+- **Documentation review:** 11 November 2026.
 - **Scope:** README and repository layout were updated to match the actual files.
 - **Runtime status:** The file move and documentation changes have not been followed by a hardware compile or end-to-end playback test in this session.
 - **Before relying on it:** Install the bridge dependencies, start the local endpoint, compile/upload the ESP32 sketch, and verify Wi-Fi reachability and OLED output on the target hardware.
